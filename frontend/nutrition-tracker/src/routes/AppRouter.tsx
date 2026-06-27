@@ -8,6 +8,7 @@ import { NotFoundPage } from '../pages/NotFoundPage'
 import { ProtectedRoute } from './ProtectedRoute'
 import { PublicOnlyRoute } from './PublicOnlyRoute'
 import { paths, routeSegments } from './paths'
+import { DashboardPage } from '../features/dashboard/pages/DashboardPage'
 
 export function AppRouter() {
   return (
@@ -31,14 +32,9 @@ export function AppRouter() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route
-              element={
-                <FeaturePlaceholderPage
-                  description="Daily summaries, calories, macros, weight trend, and today's meals will be connected after the API contract is provided."
-                  title="Dashboard"
-                />
-              }
-              path={routeSegments.dashboard}
-            />
+                element={<DashboardPage />}
+                path={routeSegments.dashboard}
+              />
             <Route
               element={
                 <FeaturePlaceholderPage
