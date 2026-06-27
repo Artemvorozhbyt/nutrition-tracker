@@ -1,0 +1,22 @@
+using NutritionTracker.Domain.Entities;
+
+namespace NutritionTracker.Application.Interfaces;
+
+public interface IWeightEntryRepository
+{
+    Task AddAsync(WeightEntry weightEntry);
+
+    Task<List<WeightEntry>> GetByUserIdAsync(Guid userId);
+
+    Task<WeightEntry?> GetLatestByUserIdAsync(Guid userId);
+
+    Task<WeightEntry?> GetByUserIdAndDateAsync(
+        Guid userId,
+        DateOnly date);
+
+    Task<WeightEntry?> GetByIdAsync(Guid id);
+
+    Task UpdateAsync(WeightEntry weightEntry);
+
+    Task DeleteAsync(WeightEntry weightEntry);
+}

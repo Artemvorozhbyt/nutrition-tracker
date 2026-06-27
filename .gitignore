@@ -1,0 +1,33 @@
+# Visual Studio
+.vs/
+.vscode/
+
+# Build
+bin/
+obj/
+
+# Node
+**/node_modules/
+**/dist/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Rider
+.idea/
+
+# Coverage
+coverage/
+
+# npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
