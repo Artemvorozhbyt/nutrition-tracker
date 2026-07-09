@@ -1,10 +1,8 @@
-namespace NutritionTracker.Domain.Entities;
+namespace NutritionTracker.API.Contracts.Products;
 using NutritionTracker.Domain.Enums;
 
-public class Product
+public class UpdateProductRequest
 {
-    public Guid Id { get; set; }
-
     public string Name { get; set; } = string.Empty;
 
     public ProductCategory Category { get; set; }
@@ -16,6 +14,4 @@ public class Product
     public decimal FatPer100g { get; set; }
 
     public decimal CarbsPer100g { get; set; }
-
-    public DateTime CreatedAt { get; set; }
 }

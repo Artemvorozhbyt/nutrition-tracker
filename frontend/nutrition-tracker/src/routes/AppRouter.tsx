@@ -9,6 +9,8 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { PublicOnlyRoute } from './PublicOnlyRoute'
 import { paths, routeSegments } from './paths'
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage'
+import { ProductsPage } from '../features/products/pages/ProductsPage'
+import { MealsPage } from '../features/meals/pages/MealsPage'
 
 export function AppRouter() {
   return (
@@ -36,21 +38,11 @@ export function AppRouter() {
                 path={routeSegments.dashboard}
               />
             <Route
-              element={
-                <FeaturePlaceholderPage
-                  description="Search, pagination, create, edit, and delete flows will be wired to the existing product endpoints later."
-                  title="Products"
-                />
-              }
-              path={routeSegments.products}
-            />
+                element={<ProductsPage />}
+                path={routeSegments.products}
+              />
             <Route
-              element={
-                <FeaturePlaceholderPage
-                  description="Meal listing and meal entry workflows are reserved for the backend API shape."
-                  title="Meals"
-                />
-              }
+              element={<MealsPage />}
               path={routeSegments.meals}
             />
             <Route

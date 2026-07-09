@@ -1,47 +1,52 @@
-import { Alert, CircularProgress, Stack, Typography } from '@mui/material'
+import { Alert, Box, Button, Grid } from '@mui/material'
+import {
+  DashboardCaloriesPanel,
+  DashboardHeader,
+  DashboardKpiGrid,
+  DashboardMacrosPanel,
+} from '../components'
 import { useDashboardQuery } from '../hooks/useDashboardQuery'
 
 export function DashboardPage() {
-  const { data, isLoading, isError, error } = useDashboardQuery()
-
-  if (isLoading) {
-    return <CircularProgress />
-  }
+  const { data, isLoading, isError, refetch } = useDashboardQuery()
 
   if (isError) {
     return (
-      <Alert severity="error">
-        {error instanceof Error ? error.message : 'Failed to load dashboard.'}
-      </Alert>
+      <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+        <Alert
+          severity="error"
+          variant="filled"
+          action={
+            <Button color="inherit" size="small" onClick={() => void refetch()}>
+              Retry
+            </Button>
+          }
+          sx={{ borderRadius: 3 }}
+        >
+          Failed to load dashboard data. Please try again.
+        </Alert>
+      </Box>
     )
-  }
-  if (!data) {
-    return null
   }
 
   return (
-    <Stack spacing={2}>
-      <Typography variant="h4">Dashboard</Typography>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3, md: 4 }, width: '100%' }}>
+      <Box sx={{ mb: 4 }}>
+        <DashboardHeader />
+      </Box>
 
-      <Typography>
-        Current Weight: {data.currentWeight}
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <DashboardKpiGrid data={data} loading={isLoading} />
+      </Box>
 
-      <Typography>
-        Goal Calories: {data.goalCalories}
-      </Typography>
-
-      <Typography>
-        Consumed Calories: {data.consumedCalories}
-      </Typography>
-
-      <Typography>
-        Remaining Calories: {data.remainingCalories}
-      </Typography>
-
-      <Typography>
-        Meals Today: {data.mealsToday}
-      </Typography>
-    </Stack>
+      <Grid container spacing={2.5}>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <DashboardCaloriesPanel data={data} loading={isLoading} />
+        </Grid>
+        <Grid size={{ xs: 12, md: 7 }}>
+          <DashboardMacrosPanel data={data} loading={isLoading} />
+        </Grid>
+      </Grid>
+    </Box>
   )
 }

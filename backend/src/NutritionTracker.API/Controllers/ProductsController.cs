@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using NutritionTracker.Application.Interfaces;
+using NutritionTracker.API.Contracts.Products;
 using NutritionTracker.Domain.Entities;
+using System.Linq;
 
 namespace NutritionTracker.API.Controllers;
 
@@ -23,22 +25,91 @@ public class ProductsController : ControllerBase
         if (product is null)
             return NotFound();
 
-        return Ok(product);
+        var response = new ProductResponse
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Category = product.Category,
+            CaloriesPer100g = product.CaloriesPer100g,
+            ProteinPer100g = product.ProteinPer100g,
+            FatPer100g = product.FatPer100g,
+            CarbsPer100g = product.CarbsPer100g
+        };
+
+        return Ok(response);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Product product)
+    public async Task<IActionResult> Create(CreateProductRequest request)
     {
-        product.Id = Guid.NewGuid();
-        product.CreatedAt = DateTime.UtcNow;
+        var product = new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Name,
+            Category = request.Category,
+            CaloriesPer100g = request.CaloriesPer100g,
+            ProteinPer100g = request.ProteinPer100g,
+            FatPer100g = request.FatPer100g,
+            CarbsPer100g = request.CarbsPer100g,
+            CreatedAt = DateTime.UtcNow
+        };
 
         await _repository.AddAsync(product);
+
+        var response = new ProductResponse
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Category = product.Category,
+            CaloriesPer100g = product.CaloriesPer100g,
+            ProteinPer100g = product.ProteinPer100g,
+            FatPer100g = product.FatPer100g,
+            CarbsPer100g = product.CarbsPer100g
+        };
 
         return CreatedAtAction(
             nameof(GetById),
             new { id = product.Id },
-            product);
+            response);
     }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+    Guid id,
+    UpdateProductRequest request)
+    {
+        var product = await _repository.GetByIdAsync(id);
+
+        if (product is null)
+        {
+            return NotFound();
+        }
+
+        product.Name = request.Name;
+        product.CaloriesPer100g = request.CaloriesPer100g;
+        product.ProteinPer100g = request.ProteinPer100g;
+        product.FatPer100g = request.FatPer100g;
+        product.CarbsPer100g = request.CarbsPer100g;
+
+        await _repository.UpdateAsync(product);
+
+        return NoContent();
+    }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var product = await _repository.GetByIdAsync(id);
+
+        if (product is null)
+        {
+            return NotFound();
+        }
+
+        await _repository.DeleteAsync(product);
+
+        return NoContent();
+    }
+
+
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
@@ -46,15 +117,28 @@ public class ProductsController : ControllerBase
     [FromQuery] int page = 1,
     [FromQuery] int pageSize = 10)
     {
+        List<Product> products;
+
         if (!string.IsNullOrWhiteSpace(search))
         {
-            return Ok(
-                await _repository.SearchAsync(search));
+            products = await _repository.SearchAsync(search);
+        }
+        else
+        {
+            products = await _repository.GetPagedAsync(page, pageSize);
         }
 
-        return Ok(
-            await _repository.GetPagedAsync(
-                page,
-                pageSize));
+        var response = products.Select(product => new ProductResponse
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Category = product.Category,
+            CaloriesPer100g = product.CaloriesPer100g,
+            ProteinPer100g = product.ProteinPer100g,
+            FatPer100g = product.FatPer100g,
+            CarbsPer100g = product.CarbsPer100g
+        });
+
+        return Ok(response);
     }
 }
