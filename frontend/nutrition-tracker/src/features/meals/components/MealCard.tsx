@@ -1,18 +1,25 @@
-
+import DeleteIcon from '@mui/icons-material/Delete'
 import {
+  Box,
   Card,
   CardContent,
   Chip,
-  Stack,
+  IconButton,
   Typography,
 } from '@mui/material'
 import type { Meal } from '../types'
 
 type Props = {
   meal: Meal
+  onDelete: (id: string) => void
+  isDeleting?: boolean
 }
 
-export function MealCard({ meal }: Props) {
+export function MealCard({
+  meal,
+  onDelete,
+  isDeleting = false,
+}: Props) {
   return (
     <Card
       elevation={2}
@@ -21,23 +28,51 @@ export function MealCard({ meal }: Props) {
       }}
     >
       <CardContent>
-        <Stack spacing={1}>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 700 }}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
           >
-            {meal.productName}
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 700 }}
+            >
+              {meal.productName}
+            </Typography>
+
+            <IconButton
+              color="error"
+              size="small"
+              disabled={isDeleting}
+              onClick={() => onDelete(meal.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
 
           <Chip
             label={`${meal.grams} g`}
             size="small"
-            sx={{ width: 'fit-content' }}
+            sx={{
+              width: 'fit-content',
+            }}
           />
 
-          <Stack
-            direction="row"
-            spacing={3}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 3,
+              flexWrap: 'wrap',
+            }}
           >
             <Typography>
               🔥 {meal.calories}
@@ -54,8 +89,8 @@ export function MealCard({ meal }: Props) {
             <Typography>
               🍞 {meal.carbs} C
             </Typography>
-          </Stack>
-        </Stack>
+          </Box>
+        </Box>
       </CardContent>
     </Card>
   )

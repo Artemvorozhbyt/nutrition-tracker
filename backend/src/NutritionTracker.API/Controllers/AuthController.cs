@@ -50,7 +50,14 @@ public class AuthController : ControllerBase
 
         await _repository.AddAsync(user);
 
-        return StatusCode(201);
+        var token = _jwtTokenGenerator.GenerateToken(
+            user.Id,
+            user.Email);
+
+        return Ok(new LoginResponse
+        {
+            AccessToken = token
+        });
     }
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)

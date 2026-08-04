@@ -5,6 +5,8 @@ import type { Meal, MealType } from '../types'
 type Props = {
   mealType: MealType
   meals: Meal[]
+  onDelete: (id: string) => void
+  deletingMealId: string | null
 }
 
 const TITLES: Record<MealType, string> = {
@@ -17,6 +19,8 @@ const TITLES: Record<MealType, string> = {
 export function MealTypeSection({
   mealType,
   meals,
+  onDelete,
+  deletingMealId,
 }: Props) {
   return (
     <Stack spacing={2}>
@@ -33,8 +37,10 @@ export function MealTypeSection({
 
       {meals.map((meal) => (
         <MealCard
-          key={meal.id}
-          meal={meal}
+            key={meal.id}
+            meal={meal}
+            onDelete={onDelete}
+            isDeleting={deletingMealId === meal.id}
         />
       ))}
 
