@@ -2,7 +2,6 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { LoginPage } from '../features/auth/pages/LoginPage'
 import { AppLayout } from '../layouts/AppLayout'
 import { AuthLayout } from '../layouts/AuthLayout'
-import { AuthPlaceholderPage } from '../pages/AuthPlaceholderPage'
 import { FeaturePlaceholderPage } from '../pages/FeaturePlaceholderPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ProtectedRoute } from './ProtectedRoute'
@@ -11,6 +10,7 @@ import { paths, routeSegments } from './paths'
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage'
 import { ProductsPage } from '../features/products/pages/ProductsPage'
 import { MealsPage } from '../features/meals/pages/MealsPage'
+import { RegisterPage } from '../features/auth/pages/RegisterPage'
 
 export function AppRouter() {
   return (
@@ -25,7 +25,7 @@ export function AppRouter() {
               path={routeSegments.login}
             />
             <Route
-              element={<AuthPlaceholderPage mode="register" />}
+              element={<RegisterPage />}
               path={routeSegments.register}
             />
           </Route>

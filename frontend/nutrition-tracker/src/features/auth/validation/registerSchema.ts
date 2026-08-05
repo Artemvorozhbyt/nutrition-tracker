@@ -24,17 +24,17 @@ export const registerSchema = z
       z.literal(Gender.Female),
     ]),
 
-    age: z.coerce
+    age: z
       .number()
       .min(1, 'Age must be greater than 0')
       .max(120),
 
-    height: z.coerce
+    height: z
       .number()
       .min(50)
       .max(300),
 
-    weight: z.coerce
+    weight: z
       .number()
       .min(20)
       .max(500),
