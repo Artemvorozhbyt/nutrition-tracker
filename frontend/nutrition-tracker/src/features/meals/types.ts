@@ -1,14 +1,15 @@
-export type MealType =
-  | 'Breakfast'
-  | 'Lunch'
-  | 'Dinner'
-  | 'Snack'
+export enum MealType {
+  Breakfast = 1,
+  Lunch = 2,
+  Dinner = 3,
+  Snack = 4,
+}
 
 export const MEAL_TYPES: MealType[] = [
-  'Breakfast',
-  'Lunch',
-  'Dinner',
-  'Snack',
+  MealType.Breakfast,
+  MealType.Lunch,
+  MealType.Dinner,
+  MealType.Snack,
 ]
 
 export interface Meal {

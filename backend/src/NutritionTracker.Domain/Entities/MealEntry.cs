@@ -1,3 +1,5 @@
+using NutritionTracker.Domain.Enums;
+
 namespace NutritionTracker.Domain.Entities;
 
 public class MealEntry
@@ -7,6 +9,8 @@ public class MealEntry
     public Guid UserId { get; set; }
 
     public Guid ProductId { get; set; }
+
+    public MealType MealType { get; set; }
 
     public DateOnly Date { get; set; }
 

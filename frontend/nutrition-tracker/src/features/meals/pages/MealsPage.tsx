@@ -1,11 +1,10 @@
 import { Stack, Typography } from '@mui/material'
 import { MealTypeSection } from '../components/MealTypeSection'
-import { EmptyMealsState } from '../components/EmptyMealsState'
 import { DailyTotalsSummary } from '../components/DailyTotalsSummary'
 import { useMealsQuery } from '../hooks/useMealsQuery'
 import { useDailyTotals } from '../hooks/useDailyTotals'
 import { MEAL_TYPES } from '../types'
-import { Button } from '@mui/material'
+
 import { useState } from 'react'
 import { AddMealDialog } from '../components/AddMealDialog'
 import { useCreateMealMutation } from '../hooks/useCreateMealMutation'
@@ -16,6 +15,7 @@ export function MealsPage() {
   const { data: meals = [] } = useMealsQuery()
   
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedMealType, setSelectedMealType] = useState<MealType | null>(null)
     
   const { data: totals } = useDailyTotals()
 
@@ -36,9 +36,14 @@ export function MealsPage() {
       await createMealMutation.mutateAsync(meal)
 
       setIsDialogOpen(false)
+      setSelectedMealType(null)
     } catch (error) {
       console.error(error)
     }
+  }
+  const handleAddMeal = (mealType: MealType) => {
+    setSelectedMealType(mealType)
+    setIsDialogOpen(true)
   }
   const handleDeleteMeal = async (id: string) => {
     try {
@@ -60,12 +65,7 @@ export function MealsPage() {
       >
         Meals
       </Typography> 
-      <Button
-        variant="contained"
-        onClick={() => setIsDialogOpen(true)}
-        >
-        Add meal
-        </Button>
+      
 
       <DailyTotalsSummary
         calories={totals?.calories ?? 0}
@@ -74,24 +74,25 @@ export function MealsPage() {
         carbs={totals?.carbs ?? 0}
       />
 
-      {meals.length === 0 ? (
-        <EmptyMealsState />
-      ) : (
-        <Stack spacing={4}>
-          {MEAL_TYPES.map((mealType) => (
-            <MealTypeSection
-              key={mealType}
-              mealType={mealType}
-              meals={meals.filter((meal) => meal.mealType === mealType)}
-              onDelete={handleDeleteMeal}
-              deletingMealId={deletingMealId}
-           />
-          ))}
-        </Stack>
-          )}
+      <Stack spacing={4}>
+        {MEAL_TYPES.map((mealType) => (
+          <MealTypeSection
+            key={mealType}
+            mealType={mealType}
+            meals={meals.filter((meal) => meal.mealType === mealType)}
+            onDelete={handleDeleteMeal}
+            deletingMealId={deletingMealId}
+            onAddMeal={handleAddMeal}
+          />
+        ))}
+      </Stack>
           <AddMealDialog
             open={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
+            onClose={() => {
+              setIsDialogOpen(false)
+              setSelectedMealType(null)
+            }}
+            mealType={selectedMealType}
             onSave={handleSaveMeal}
           />
     </Stack>

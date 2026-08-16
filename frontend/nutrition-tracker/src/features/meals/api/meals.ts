@@ -11,7 +11,11 @@ export async function createMeal(
   dto: CreateMealDto,
 ): Promise<Meal> {
   return unwrapApiResponse(
-    apiClient.post<Meal>('/meals', dto)
+    apiClient.post<Meal>('/meals', {
+      productId: dto.productId,
+      weightInGrams: dto.grams,
+      mealType: dto.mealType,
+    })
   )
 }
 

@@ -1,19 +1,31 @@
-import { Divider, Stack, Typography } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import {
+  Divider,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import { MealCard } from './MealCard'
-import type { Meal, MealType } from '../types'
+import {
+  MealType,
+  type Meal,
+  type MealType as MealTypeValue,
+} from '../types'
 
 type Props = {
-  mealType: MealType
+  mealType: MealTypeValue
   meals: Meal[]
   onDelete: (id: string) => void
   deletingMealId: string | null
+  onAddMeal: (mealType: MealTypeValue) => void
 }
 
-const TITLES: Record<MealType, string> = {
-  Breakfast: '☀ Breakfast',
-  Lunch: '🍗 Lunch',
-  Dinner: '🌙 Dinner',
-  Snack: '🍎 Snack',
+const TITLES: Record<MealTypeValue, string> = {
+  [MealType.Breakfast]: '☀ Breakfast',
+  [MealType.Lunch]: '🍗 Lunch',
+  [MealType.Dinner]: '🌙 Dinner',
+  [MealType.Snack]: '🍎 Snack',
 }
 
 export function MealTypeSection({
@@ -21,26 +33,43 @@ export function MealTypeSection({
   meals,
   onDelete,
   deletingMealId,
+  onAddMeal,
 }: Props) {
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 700 }}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
         >
-          {TITLES[mealType]} ({meals.length})
-        </Typography>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700 }}
+          >
+            {TITLES[mealType]} ({meals.length})
+          </Typography>
+
+          <Tooltip title={`Add to ${TITLES[mealType]}`}>
+            <IconButton
+              color="primary"
+              onClick={() => onAddMeal(mealType)}
+              aria-label={`Add meal to ${TITLES[mealType]}`}
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+        </Stack>
 
         <Divider />
       </Stack>
 
       {meals.map((meal) => (
         <MealCard
-            key={meal.id}
-            meal={meal}
-            onDelete={onDelete}
-            isDeleting={deletingMealId === meal.id}
+          key={meal.id}
+          meal={meal}
+          onDelete={onDelete}
+          isDeleting={deletingMealId === meal.id}
         />
       ))}
 

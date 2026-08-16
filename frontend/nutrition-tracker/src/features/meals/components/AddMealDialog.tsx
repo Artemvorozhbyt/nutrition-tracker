@@ -1,7 +1,4 @@
-import { useProductsQuery } from '../../products/hooks/useProductsQuery'
-import { getItems } from '../../../utils/getItems'
-
-
+import { useEffect, useState } from 'react'
 import {
   Button,
   Dialog,
@@ -12,32 +9,63 @@ import {
   Stack,
   TextField,
 } from '@mui/material'
-import { useState } from 'react'
-
-import { MEAL_TYPES, type MealType } from '../types'
+import { useProductsQuery } from '../../products/hooks/useProductsQuery'
+import { getItems } from '../../../utils/getItems'
+import {
+  MealType,
+  type MealType as MealTypeValue,
+} from '../types'
 
 type Props = {
   open: boolean
   onClose: () => void
+  mealType: MealTypeValue | null
   onSave: (data: {
     productId: string
     grams: number
-    mealType: MealType
+    mealType: MealTypeValue
   }) => void
 }
 
 export function AddMealDialog({
   open,
   onClose,
+  mealType,
   onSave,
 }: Props) {
   const [productId, setProductId] = useState('')
   const [grams, setGrams] = useState(100)
-  const [mealType, setMealType] = useState<MealType>('Breakfast')
 
   const { data } = useProductsQuery()
-
   const products = getItems(data)
+
+  useEffect(() => {
+    if (open) {
+      setProductId('')
+      setGrams(100)
+    }
+  }, [open, mealType])
+
+  const handleSave = () => {
+    if (!mealType || !productId || grams <= 0) {
+      return
+    }
+
+    onSave({
+      productId,
+      grams,
+      mealType,
+    })
+  }
+
+  const mealTypeLabel =
+    mealType === MealType.Breakfast
+      ? 'Breakfast'
+      : mealType === MealType.Lunch
+        ? 'Lunch'
+        : mealType === MealType.Dinner
+          ? 'Dinner'
+          : 'Snack'
 
   return (
     <Dialog
@@ -46,56 +74,36 @@ export function AddMealDialog({
       fullWidth
       maxWidth="sm"
     >
-      <DialogTitle>Add meal</DialogTitle>
+      <DialogTitle>
+        Add food to {mealTypeLabel}
+      </DialogTitle>
 
       <DialogContent>
-        <Stack
-          spacing={2}
-          sx={{ mt: 1 }}
-        >
+        <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
-              select
-              label="Product"
-              value={productId}
-              onChange={(e) => setProductId(e.target.value)}
-              fullWidth
+            select
+            label="Product"
+            value={productId}
+            onChange={(event) => setProductId(event.target.value)}
+            fullWidth
           >
-              {products.map((product) => (
-                  <MenuItem
-                      key={product.id}
-                      value={product.id}
-                  >
-                      {product.name}
-                  </MenuItem>
-              ))}
+            {products.map((product) => (
+              <MenuItem key={product.id} value={product.id}>
+                {product.name}
+              </MenuItem>
+            ))}
           </TextField>
 
           <TextField
             label="Grams"
             type="number"
             value={grams}
-            onChange={(e) => setGrams(Number(e.target.value))}
+            onChange={(event) =>
+              setGrams(Number(event.target.value))
+            }
+            inputProps={{ min: 1 }}
             fullWidth
           />
-
-          <TextField
-            select
-            label="Meal type"
-            value={mealType}
-            onChange={(e) =>
-              setMealType(e.target.value as MealType)
-            }
-            fullWidth
-          >
-            {MEAL_TYPES.map((type) => (
-              <MenuItem
-                key={type}
-                value={type}
-              >
-                {type}
-              </MenuItem>
-            ))}
-          </TextField>
         </Stack>
       </DialogContent>
 
@@ -106,17 +114,10 @@ export function AddMealDialog({
 
         <Button
           variant="contained"
-          onClick={() => {
-            onSave({
-              productId,
-              grams,
-              mealType,
-            })
-
-            onClose()
-          }}
+          disabled={!mealType || !productId || grams <= 0}
+          onClick={handleSave}
         >
-          Save
+          Add food
         </Button>
       </DialogActions>
     </Dialog>

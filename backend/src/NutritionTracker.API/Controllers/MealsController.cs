@@ -53,6 +53,7 @@ public class MealsController : ControllerBase
             Id = Guid.NewGuid(),
             UserId = userId,
             ProductId = product.Id,
+            MealType = request.MealType,
 
             Date = DateOnly.FromDateTime(DateTime.UtcNow),
 
@@ -92,6 +93,7 @@ public class MealsController : ControllerBase
             {
                 Id = x.Id,
                 ProductId = x.ProductId,
+                MealType = x.MealType,
                 WeightInGrams = x.WeightInGrams,
                 Calories = x.Calories,
                 Protein = x.Protein,
