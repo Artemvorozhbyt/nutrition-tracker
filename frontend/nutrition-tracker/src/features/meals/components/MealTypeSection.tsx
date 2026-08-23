@@ -7,11 +7,7 @@ import {
   Typography,
 } from '@mui/material'
 import { MealCard } from './MealCard'
-import {
-  MealType,
-  type Meal,
-  type MealType as MealTypeValue,
-} from '../types'
+import type { Meal, MealType as MealTypeValue } from '../types'
 
 type Props = {
   mealType: MealTypeValue
@@ -22,10 +18,10 @@ type Props = {
 }
 
 const TITLES: Record<MealTypeValue, string> = {
-  [MealType.Breakfast]: '☀ Breakfast',
-  [MealType.Lunch]: '🍗 Lunch',
-  [MealType.Dinner]: '🌙 Dinner',
-  [MealType.Snack]: '🍎 Snack',
+  1: '☀ Breakfast',
+  2: '🍗 Lunch',
+  3: '🌙 Dinner',
+  4: '🍎 Snack',
 }
 
 export function MealTypeSection({
@@ -40,8 +36,10 @@ export function MealTypeSection({
       <Stack spacing={1}>
         <Stack
           direction="row"
-          alignItems="center"
-          justifyContent="space-between"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
         >
           <Typography
             variant="h6"

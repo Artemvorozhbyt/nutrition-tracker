@@ -101,7 +101,7 @@ export function AddMealDialog({
             onChange={(event) =>
               setGrams(Number(event.target.value))
             }
-            inputProps={{ min: 1 }}
+            slotProps={{ htmlInput: { min: 1 } }}
             fullWidth
           />
         </Stack>

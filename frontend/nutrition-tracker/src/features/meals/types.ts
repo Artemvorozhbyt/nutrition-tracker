@@ -1,9 +1,11 @@
-export enum MealType {
-  Breakfast = 1,
-  Lunch = 2,
-  Dinner = 3,
-  Snack = 4,
-}
+export type MealType = 1 | 2 | 3 | 4
+
+export const MealType = {
+  Breakfast: 1 as MealType,
+  Lunch: 2 as MealType,
+  Dinner: 3 as MealType,
+  Snack: 4 as MealType,
+} as const
 
 export const MEAL_TYPES: MealType[] = [
   MealType.Breakfast,
