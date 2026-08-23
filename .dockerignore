@@ -1,0 +1,10 @@
+**/bin
+**/obj
+**/.vs
+**/TestResults
+.git
+.gitignore
+frontend
+backend/docs
+backend/tests
+backend/NutritionTracker.Tests
