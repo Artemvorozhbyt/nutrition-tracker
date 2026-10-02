@@ -11,6 +11,7 @@ import { DashboardPage } from '../features/dashboard/pages/DashboardPage'
 import { ProductsPage } from '../features/products/pages/ProductsPage'
 import { MealsPage } from '../features/meals/pages/MealsPage'
 import { RegisterPage } from '../features/auth/pages/RegisterPage'
+import { WeightPage } from '../features/weight/pages/WeightPage'
 
 export function AppRouter() {
   return (
@@ -46,12 +47,7 @@ export function AppRouter() {
               path={routeSegments.meals}
             />
             <Route
-              element={
-                <FeaturePlaceholderPage
-                  description="Weight history, editing, deletion, and chart data will use the backend contract when supplied."
-                  title="Weight"
-                />
-              }
+              element={<WeightPage />}
               path={routeSegments.weight}
             />
             <Route
