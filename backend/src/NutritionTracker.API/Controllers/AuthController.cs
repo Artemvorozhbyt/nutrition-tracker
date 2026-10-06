@@ -4,6 +4,9 @@ using NutritionTracker.API.Contracts.Auth;
 using NutritionTracker.Application.Interfaces;
 using NutritionTracker.Domain.Entities;
 using NutritionTracker.Application.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using System.Security.Claims;
 
 namespace NutritionTracker.API.Controllers;
 
@@ -29,6 +32,101 @@ public class AuthController : ControllerBase
         _jwtTokenGenerator = jwtTokenGenerator;
         _dailyGoalRepository = dailyGoalRepository;
         _weightRepository = weightRepository;
+    }
+
+    private static bool IsProfileCompleted(User user)
+    {
+        return user.Age > 0
+            && user.Height > 0
+            && user.Weight > 0;
+    }
+
+    [HttpGet("google")]
+    public IActionResult GoogleLogin()
+    {
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = "/api/auth/google-callback"
+        };
+
+        return Challenge(
+            properties,
+            GoogleDefaults.AuthenticationScheme);
+    }
+
+    [HttpGet("google-callback")]
+    public async Task<IActionResult> GoogleCallback()
+    {
+        var result =
+            await HttpContext.AuthenticateAsync("External");
+
+        if (!result.Succeeded)
+        {
+            return Unauthorized("Google authentication failed");
+        }
+
+        var email =
+            result.Principal?.FindFirstValue(ClaimTypes.Email);
+
+        var googleSubject =
+            result.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var firstName =
+            result.Principal?.FindFirstValue(ClaimTypes.GivenName);
+
+        if (string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(googleSubject))
+        {
+            return Unauthorized("Google account information is incomplete");
+        }
+
+        var user =
+            await _repository.GetByGoogleSubjectAsync(googleSubject);
+
+        if (user is null)
+        {
+            user =
+                await _repository.GetByEmailAsync(email);
+        }
+
+        if (user is null)
+        {
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                PasswordHash =
+                    BCrypt.Net.BCrypt.HashPassword(
+                        Guid.NewGuid().ToString()),
+                GoogleSubject = googleSubject,
+                FirstName = firstName ?? string.Empty,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _repository.AddAsync(user);
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(user.GoogleSubject))
+            {
+                user.GoogleSubject = googleSubject;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(user);
+            }
+        }
+
+        var token =
+            _jwtTokenGenerator.GenerateToken(
+                user.Id,
+                user.Email);
+
+        return Ok(new
+        {
+            accessToken = token,
+            profileCompleted = IsProfileCompleted(user)
+        });
     }
 
     [HttpPost("register")]

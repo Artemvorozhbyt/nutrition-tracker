@@ -20,6 +20,12 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(x => x.Email == email);
     }
 
+    public async Task<User?> GetByGoogleSubjectAsync(string googleSubject)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(x => x.GoogleSubject == googleSubject);
+    }
+
     public async Task<User?> GetByIdAsync(Guid id)
     {
         return await _context.Users.FindAsync(id);
@@ -28,6 +34,12 @@ public class UserRepository : IUserRepository
     public async Task AddAsync(User user)
     {
         await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
 }

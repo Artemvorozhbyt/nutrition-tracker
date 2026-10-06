@@ -25,5 +25,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<User>()
             .HasIndex(x => x.Email)
             .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .HasIndex(x => x.GoogleSubject)
+            .IsUnique();
     }
 }

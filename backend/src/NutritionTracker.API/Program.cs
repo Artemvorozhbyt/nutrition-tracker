@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.IdentityModel.Tokens;
 using NutritionTracker.Infrastructure;
 using NutritionTracker.Infrastructure.Persistence;
@@ -71,26 +72,43 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters =
+        new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
 
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
 
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(
-                            builder.Configuration["Jwt:Key"]!))
-            };
-    });
+            IssuerSigningKey =
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(
+                        builder.Configuration["Jwt:Key"]!))
+        };
+})
+.AddCookie("External")
+.AddGoogle(options =>
+{
+    options.ClientId =
+        builder.Configuration["Authentication:Google:ClientId"]!;
+
+    options.ClientSecret =
+        builder.Configuration["Authentication:Google:ClientSecret"]!;
+
+    options.CallbackPath = "/signin-google";
+
+    options.SignInScheme = "External";
+});
 
 builder.Services.AddAuthorization();
 

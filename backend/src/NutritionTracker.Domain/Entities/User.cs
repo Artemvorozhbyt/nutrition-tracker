@@ -10,6 +10,8 @@ public class User
 
     public string PasswordHash { get; set; } = string.Empty;
 
+    public string? GoogleSubject { get; set; }
+
     public string FirstName { get; set; } = string.Empty;
 
     public Gender Gender { get; set; }
