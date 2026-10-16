@@ -7,6 +7,7 @@ using NutritionTracker.Application.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace NutritionTracker.API.Controllers;
 
@@ -15,23 +16,38 @@ namespace NutritionTracker.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserRepository _repository;
-
+    private readonly IGoogleLoginCodeRepository _googleLoginCodeRepository;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-
     private readonly IDailyGoalRepository _dailyGoalRepository;
-
     private readonly IWeightEntryRepository _weightRepository;
 
     public AuthController(
     IUserRepository repository,
+    IGoogleLoginCodeRepository googleLoginCodeRepository,
     IJwtTokenGenerator jwtTokenGenerator,
     IDailyGoalRepository dailyGoalRepository,
     IWeightEntryRepository weightRepository)
     {
         _repository = repository;
+        _googleLoginCodeRepository = googleLoginCodeRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
         _dailyGoalRepository = dailyGoalRepository;
         _weightRepository = weightRepository;
+    }
+
+    private static string GenerateLoginCode()
+    {
+        var bytes = RandomNumberGenerator.GetBytes(32);
+
+        return Convert.ToBase64String(bytes);
+    }
+
+    private static string HashLoginCode(string code)
+    {
+        var bytes = SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(code));
+
+        return Convert.ToHexString(bytes);
     }
 
     private static bool IsProfileCompleted(User user)
@@ -106,16 +122,86 @@ public class AuthController : ControllerBase
 
             await _repository.AddAsync(user);
         }
-        else
+        else if (string.IsNullOrWhiteSpace(user.GoogleSubject))
         {
-            if (string.IsNullOrWhiteSpace(user.GoogleSubject))
-            {
-                user.GoogleSubject = googleSubject;
-                user.UpdatedAt = DateTime.UtcNow;
+            user.GoogleSubject = googleSubject;
+            user.UpdatedAt = DateTime.UtcNow;
 
-                await _repository.UpdateAsync(user);
-            }
+            await _repository.UpdateAsync(user);
         }
+
+        var code = GenerateLoginCode();
+
+        var loginCode = new GoogleLoginCode
+        {
+            Id = Guid.NewGuid(),
+            CodeHash = HashLoginCode(code),
+            UserId = user.Id,
+            ProfileCompleted = IsProfileCompleted(user),
+            ExpiresAt = DateTime.UtcNow.AddMinutes(2)
+        };
+
+        await _googleLoginCodeRepository.AddAsync(loginCode);
+
+        await HttpContext.SignOutAsync("External");
+
+        var frontendBaseUrl =
+            HttpContext.RequestServices
+                .GetRequiredService<IConfiguration>()["Frontend:BaseUrl"];
+
+        if (string.IsNullOrWhiteSpace(frontendBaseUrl))
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                "Frontend URL is not configured");
+        }
+
+        return Redirect(
+            $"{frontendBaseUrl.TrimEnd('/')}" +
+            $"/auth/google/callback?code={Uri.EscapeDataString(code)}");
+    }
+
+    [HttpPost("google-exchange")]
+    public async Task<IActionResult> GoogleExchange(
+    [FromBody] string code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return BadRequest("Google login code is required");
+        }
+
+        var codeHash = HashLoginCode(code);
+
+        var loginCode =
+            await _googleLoginCodeRepository
+                .GetByCodeHashAsync(codeHash);
+
+        if (loginCode is null)
+        {
+            return Unauthorized("Invalid Google login code");
+        }
+
+        if (loginCode.UsedAt is not null)
+        {
+            return Unauthorized("Google login code has already been used");
+        }
+
+        if (loginCode.ExpiresAt <= DateTime.UtcNow)
+        {
+            return Unauthorized("Google login code has expired");
+        }
+
+        var user =
+            await _repository.GetByIdAsync(loginCode.UserId);
+
+        if (user is null)
+        {
+            return Unauthorized("User not found");
+        }
+
+        loginCode.UsedAt = DateTime.UtcNow;
+
+        await _googleLoginCodeRepository.UpdateAsync(loginCode);
 
         var token =
             _jwtTokenGenerator.GenerateToken(
@@ -125,7 +211,7 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             accessToken = token,
-            profileCompleted = IsProfileCompleted(user)
+            profileCompleted = loginCode.ProfileCompleted
         });
     }
 

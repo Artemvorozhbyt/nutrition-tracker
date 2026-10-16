@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<MealEntry> MealEntries => Set<MealEntry>();
     public DbSet<DailyGoal> DailyGoals => Set<DailyGoal>();
     public DbSet<WeightEntry> WeightEntries => Set<WeightEntry>();
+    public DbSet<GoogleLoginCode> GoogleLoginCodes => Set<GoogleLoginCode>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

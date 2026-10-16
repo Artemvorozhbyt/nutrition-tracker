@@ -51,6 +51,33 @@ namespace NutritionTracker.Infrastructure.Migrations
                     b.ToTable("DailyGoals");
                 });
 
+            modelBuilder.Entity("NutritionTracker.Domain.Entities.GoogleLoginCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("ProfileCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GoogleLoginCodes");
+                });
+
             modelBuilder.Entity("NutritionTracker.Domain.Entities.MealEntry", b =>
                 {
                     b.Property<Guid>("Id")

@@ -1,7 +1,9 @@
+
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { LoginPage } from '../features/auth/pages/LoginPage'
 import { AppLayout } from '../layouts/AppLayout'
 import { AuthLayout } from '../layouts/AuthLayout'
+import { CompleteProfilePage } from '../features/auth/pages/CompleteProfilePage'
 import { FeaturePlaceholderPage } from '../pages/FeaturePlaceholderPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ProtectedRoute } from './ProtectedRoute'
@@ -12,12 +14,22 @@ import { ProductsPage } from '../features/products/pages/ProductsPage'
 import { MealsPage } from '../features/meals/pages/MealsPage'
 import { RegisterPage } from '../features/auth/pages/RegisterPage'
 import { WeightPage } from '../features/weight/pages/WeightPage'
+import { GoogleCallbackPage } from '../features/auth/pages/GoogleCallbackPage'
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Navigate replace to={paths.dashboard} />} path={paths.home} />
+        <Route
+          element={<Navigate replace to={paths.dashboard} />}
+          path={paths.home}
+        />
+
+        {/* Google callback must not be inside PublicOnlyRoute */}
+        <Route
+          element={<GoogleCallbackPage />}
+          path={routeSegments.googleCallback}
+        />
 
         <Route element={<PublicOnlyRoute />}>
           <Route element={<AuthLayout />}>
@@ -35,13 +47,13 @@ export function AppRouter() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route
-                element={<DashboardPage />}
-                path={routeSegments.dashboard}
-              />
+              element={<DashboardPage />}
+              path={routeSegments.dashboard}
+            />
             <Route
-                element={<ProductsPage />}
-                path={routeSegments.products}
-              />
+              element={<ProductsPage />}
+              path={routeSegments.products}
+            />
             <Route
               element={<MealsPage />}
               path={routeSegments.meals}
@@ -60,6 +72,11 @@ export function AppRouter() {
               path={routeSegments.goals}
             />
           </Route>
+
+          <Route
+            element={<CompleteProfilePage />}
+            path={routeSegments.completeProfile}
+          />
         </Route>
 
         <Route element={<NotFoundPage />} path="*" />

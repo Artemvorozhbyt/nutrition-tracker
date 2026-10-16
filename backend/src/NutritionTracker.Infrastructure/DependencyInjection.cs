@@ -23,6 +23,10 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
 
+        services.AddScoped<
+            IGoogleLoginCodeRepository,
+            GoogleLoginCodeRepository>();
+
         services.AddScoped<IDailyGoalRepository, DailyGoalRepository>();
 
         services.AddScoped<IMealEntryRepository, MealEntryRepository>();

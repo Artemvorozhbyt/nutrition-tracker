@@ -1,3 +1,4 @@
+import GoogleIcon from '@mui/icons-material/Google'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +15,8 @@ import { useLoginMutation } from '../hooks/useLoginMutation'
 import { loginSchema } from '../validation/loginSchema'
 import type { LoginFormValues } from '../validation/loginSchema'
 import { AuthCard, AuthIconSurface } from './AuthCard'
+import { loginWithGoogle } from '../api/login'
+
 
 const FormFields = styled('div')(({ theme }) => ({
   display: 'grid',
@@ -173,6 +176,16 @@ export function LoginForm() {
           >
             {isLoading ? 'Signing in' : 'Sign in'}
           </Button>
+
+          <Button
+            disabled={isLoading}
+            onClick={loginWithGoogle}
+            startIcon={<GoogleIcon />}
+            variant="outlined"
+          >
+            Continue with Google
+          </Button>
+
           <Button
             component={RouterLink}
             disabled={isLoading}
