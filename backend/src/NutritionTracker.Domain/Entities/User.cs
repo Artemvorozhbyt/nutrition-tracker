@@ -24,6 +24,8 @@ public class User
 
     public GoalType Goal { get; set; }
 
+    public ActivityLevel ActivityLevel { get; set; } = ActivityLevel.LightlyActive;
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

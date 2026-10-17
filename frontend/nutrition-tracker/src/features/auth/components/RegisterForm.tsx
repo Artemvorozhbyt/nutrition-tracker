@@ -16,7 +16,7 @@ import { ApiClientError } from '../../../api/errors'
 import { RhfTextField } from '../../../components/forms/RhfTextField'
 import { paths } from '../../../routes/paths'
 
-import { GoalType, Gender } from '../types'
+import { ActivityLevel, GoalType, Gender } from '../types'
 import { useAuth } from '../hooks/useAuth'
 import { useRegisterMutation } from '../hooks/useRegisterMutation'
 import { registerSchema } from '../validation/registerSchema'
@@ -71,6 +71,7 @@ function normalizeFieldName(
   if (normalized.endsWith('height')) return 'height'
   if (normalized.endsWith('weight')) return 'weight'
   if (normalized.endsWith('goal')) return 'goal'
+  if (normalized.endsWith('activitylevel')) return 'activityLevel'
 
   return null
 }
@@ -108,6 +109,7 @@ export function RegisterForm() {
       height: 170,
       weight: 70,
       goal: GoalType.MaintainWeight,
+      activityLevel: ActivityLevel.LightlyActive,
     },
   })
 
@@ -143,6 +145,7 @@ export function RegisterForm() {
             height: values.height,
             weight: values.weight,
             goal: values.goal,
+            activityLevel: values.activityLevel,
           })
 
         setSession({
@@ -161,6 +164,7 @@ export function RegisterForm() {
     },
   )
 
+  
   return (
     <AuthCard elevation={0}>
       <Stack
@@ -300,6 +304,36 @@ export function RegisterForm() {
               {
                 label: 'Gain weight',
                 value: GoalType.GainWeight,
+              },
+            ]}
+            required
+          />
+          <RhfTextField
+            control={control}
+            disabled={isLoading}
+            fullWidth
+            label="Physical activity level"
+            name="activityLevel"
+            options={[
+              {
+                label: 'Sedentary — little or no exercise',
+                value: ActivityLevel.Sedentary,
+              },
+              {
+                label: 'Lightly active — light exercise 1–3 days/week',
+                value: ActivityLevel.LightlyActive,
+              },
+              {
+                label: 'Moderately active — exercise 3–5 days/week',
+                value: ActivityLevel.ModeratelyActive,
+              },
+              {
+                label: 'Very active — hard exercise 6–7 days/week',
+                value: ActivityLevel.VeryActive,
+              },
+              {
+                label: 'Extremely active — intense training or physical work',
+                value: ActivityLevel.ExtremelyActive,
               },
             ]}
             required

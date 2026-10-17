@@ -29,6 +29,17 @@ export const GoalType = {
 
 export type GoalType = (typeof GoalType)[keyof typeof GoalType]
 
+export const ActivityLevel = {
+  Sedentary: 1,
+  LightlyActive: 2,
+  ModeratelyActive: 3,
+  VeryActive: 4,
+  ExtremelyActive: 5,
+} as const
+
+export type ActivityLevel =
+  (typeof ActivityLevel)[keyof typeof ActivityLevel]
+
 export type RegisterRequest = {
   firstName: string
   email: string
@@ -38,6 +49,7 @@ export type RegisterRequest = {
   height: number
   weight: number
   goal: GoalType
+  activityLevel: ActivityLevel
 }
 
 export type LoginResponse = {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { Gender, GoalType } from '../types'
+import { ActivityLevel, Gender, GoalType } from '../types'
 
 export const registerSchema = z
   .object({
@@ -43,6 +43,13 @@ export const registerSchema = z
       z.literal(GoalType.LoseWeight),
       z.literal(GoalType.MaintainWeight),
       z.literal(GoalType.GainWeight),
+    ]),
+    activityLevel: z.union([
+      z.literal(ActivityLevel.Sedentary),
+      z.literal(ActivityLevel.LightlyActive),
+      z.literal(ActivityLevel.ModeratelyActive),
+      z.literal(ActivityLevel.VeryActive),
+      z.literal(ActivityLevel.ExtremelyActive),
     ]),
   })
   .refine((data) => data.password === data.confirmPassword, {

@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using NutritionTracker.API.Contracts.DailyGoals;
 using NutritionTracker.Application.Interfaces;
 using NutritionTracker.Domain.Entities;
+using NutritionTracker.Application.Services;
+using NutritionTracker.Domain.Enums;
+
 
 namespace NutritionTracker.API.Controllers;
 
@@ -13,10 +16,14 @@ namespace NutritionTracker.API.Controllers;
 public class DailyGoalsController : ControllerBase
 {
     private readonly IDailyGoalRepository _repository;
+    private readonly IUserRepository _userRepository;
 
-    public DailyGoalsController(IDailyGoalRepository repository)
+    public DailyGoalsController(
+    IDailyGoalRepository repository,
+    IUserRepository userRepository)
     {
         _repository = repository;
+        _userRepository = userRepository;
     }
 
     [HttpGet]
@@ -96,4 +103,84 @@ public class DailyGoalsController : ControllerBase
 
         return NoContent();
     }
+
+
+    [HttpPost("calculate")]
+    public async Task<IActionResult> Calculate(
+        [FromBody] CalculateDailyGoalRequest request)
+    {
+        var userIdClaim =
+            User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+
+        if (!Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _userRepository.GetByIdAsync(userId);
+
+        if (user is null)
+        {
+            return NotFound("User not found");
+        }
+
+        if (user.Age <= 0 || user.Height <= 0 || user.Weight <= 0)
+        {
+            return BadRequest(
+                "Complete your profile before calculating goals.");
+        }
+
+        if (!Enum.IsDefined(typeof(ActivityLevel), request.ActivityLevel))
+        {
+            return BadRequest("Invalid activity level.");
+        }
+
+        var calculator = new DailyGoalCalculator();
+
+        var calculatedGoal = calculator.Calculate(
+            user.Gender,
+            user.Age,
+            user.Height,
+            user.Weight,
+            user.Goal,
+            request.ActivityLevel);
+
+        var dailyGoal = await _repository.GetByUserIdAsync(userId);
+
+        if (dailyGoal is null)
+        {
+            dailyGoal = new DailyGoal
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                TargetCalories = calculatedGoal.Calories,
+                TargetProtein = calculatedGoal.Protein,
+                TargetFat = calculatedGoal.Fat,
+                TargetCarbs = calculatedGoal.Carbs,
+                CalculatedAt = DateTime.UtcNow
+            };
+
+            await _repository.AddAsync(dailyGoal);
+        }
+        else
+        {
+            dailyGoal.TargetCalories = calculatedGoal.Calories;
+            dailyGoal.TargetProtein = calculatedGoal.Protein;
+            dailyGoal.TargetFat = calculatedGoal.Fat;
+            dailyGoal.TargetCarbs = calculatedGoal.Carbs;
+            dailyGoal.CalculatedAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(dailyGoal);
+        }
+
+        return Ok(new DailyGoalResponse
+        {
+            Calories = calculatedGoal.Calories,
+            Protein = calculatedGoal.Protein,
+            Fat = calculatedGoal.Fat,
+            Carbs = calculatedGoal.Carbs
+        });
+    }
+
 }

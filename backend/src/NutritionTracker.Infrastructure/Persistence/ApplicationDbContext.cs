@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NutritionTracker.Domain.Entities;
+using NutritionTracker.Domain.Enums;
 
 namespace NutritionTracker.Infrastructure.Persistence;
 
@@ -30,5 +31,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<User>()
             .HasIndex(x => x.GoogleSubject)
             .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .Property(x => x.ActivityLevel)
+            .HasDefaultValue(ActivityLevel.LightlyActive);
     }
 }

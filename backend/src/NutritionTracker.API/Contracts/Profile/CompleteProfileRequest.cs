@@ -15,4 +15,6 @@ public class CompleteProfileRequest
     public decimal Weight { get; set; }
 
     public GoalType Goal { get; set; }
+
+    public ActivityLevel ActivityLevel { get; set; } = ActivityLevel.LightlyActive;
 }

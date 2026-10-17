@@ -19,3 +19,11 @@ export function updateDailyGoals(goals: DailyGoalsDto) {
     apiClient.put<void>('/daily-goals', goals),
   )
 }
+
+export function calculateDailyGoals(activityLevel: number) {
+  return unwrapApiResponse(
+    apiClient.post<DailyGoalsDto>('/daily-goals/calculate', {
+      activityLevel,
+    }),
+  )
+}

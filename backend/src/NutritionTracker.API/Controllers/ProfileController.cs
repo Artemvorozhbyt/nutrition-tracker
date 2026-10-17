@@ -54,7 +54,8 @@ public class ProfileController : ControllerBase
             user.Age,
             user.Height,
             user.Weight,
-            user.Goal
+            user.Goal,
+            user.ActivityLevel
         });
     }
 
@@ -85,6 +86,7 @@ public class ProfileController : ControllerBase
         user.Weight = request.Weight;
         user.Goal = request.Goal;
         user.UpdatedAt = DateTime.UtcNow;
+        user.ActivityLevel = request.ActivityLevel;
 
         await _userRepository.UpdateAsync(user);
 
@@ -95,7 +97,8 @@ public class ProfileController : ControllerBase
             user.Age,
             user.Height,
             user.Weight,
-            user.Goal);
+            user.Goal,
+            user.ActivityLevel);
 
         var dailyGoal = new DailyGoal
         {

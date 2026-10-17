@@ -5,12 +5,19 @@ import {
   Box,
   Button,
   CircularProgress,
+  MenuItem,
   Paper,
   Stack,
   TextField,
   Typography,
 } from '@mui/material'
-import { useDailyGoalsQuery, useUpdateDailyGoalsMutation } from '../hooks/useDailyGoals'
+
+import {
+  useCalculateDailyGoalsMutation,
+  useDailyGoalsQuery,
+  useUpdateDailyGoalsMutation,
+} from '../hooks/useDailyGoals'
+
 import type { DailyGoalsDto } from '../api/dailyGoals'
 
 const initialGoals: DailyGoalsDto = {
@@ -34,8 +41,9 @@ const fields: {
 export function GoalsPage() {
   const goalsQuery = useDailyGoalsQuery()
   const updateMutation = useUpdateDailyGoalsMutation()
+  const calculateMutation = useCalculateDailyGoalsMutation()
   const [goals, setGoals] = useState<DailyGoalsDto>(initialGoals)
-
+  const [activityLevel, setActivityLevel] = useState(2)
   useEffect(() => {
     if (goalsQuery.data) {
       setGoals(goalsQuery.data)
@@ -51,6 +59,16 @@ export function GoalsPage() {
 
   const handleSave = () => {
     updateMutation.mutate(goals)
+  }
+  
+  const handleCalculate = async () => {
+    try {
+        const calculatedGoals =
+            await calculateMutation.mutateAsync(activityLevel)
+        setGoals(calculatedGoals)
+    } catch {
+        // Error is displayed below.
+   }
   }
 
   if (goalsQuery.isPending) {
@@ -68,6 +86,10 @@ export function GoalsPage() {
           Your daily goals have not been created yet. Set your targets below.
         </Alert>
         <GoalsForm
+          activityLevel={activityLevel}
+          onActivityLevelChange={setActivityLevel}
+          onCalculate={handleCalculate}
+          isCalculating={calculateMutation.isPending}
           goals={goals}
           onChange={handleChange}
           onSave={handleSave}
@@ -78,6 +100,11 @@ export function GoalsPage() {
         )}
         {updateMutation.isError && (
           <Alert severity="error">{updateMutation.error.message}</Alert>
+        )}
+        {calculateMutation.isError && (
+        <Alert severity="error">
+            {calculateMutation.error.message}
+        </Alert>
         )}
       </Stack>
     )
@@ -99,6 +126,10 @@ export function GoalsPage() {
       </Box>
 
       <GoalsForm
+        activityLevel={activityLevel}
+        onActivityLevelChange={setActivityLevel}
+        onCalculate={handleCalculate}
+        isCalculating={calculateMutation.isPending}
         goals={goals}
         onChange={handleChange}
         onSave={handleSave}
@@ -120,11 +151,20 @@ function GoalsForm({
   onChange,
   onSave,
   isSaving,
+  onCalculate,
+  isCalculating,
+  activityLevel,
+  onActivityLevelChange,
+  
 }: {
   goals: DailyGoalsDto
   onChange: (key: keyof DailyGoalsDto, value: string) => void
   onSave: () => void
   isSaving: boolean
+  onCalculate: () => void
+  isCalculating: boolean
+  activityLevel: number
+  onActivityLevelChange: (value: number) => void
 }) {
   return (
     <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
@@ -145,6 +185,33 @@ function GoalsForm({
             gap: 2,
           }}
         >
+                <TextField
+          select
+          fullWidth
+          label="Your activity level"
+          value={activityLevel}
+          onChange={(event) =>
+            onActivityLevelChange(Number(event.target.value))
+          }
+          helperText="Choose your usual physical activity level"
+        >
+          <MenuItem value={1}>
+            Sedentary — little or no exercise
+          </MenuItem>
+          <MenuItem value={2}>
+            Lightly active — exercise 1–3 days/week
+          </MenuItem>
+          <MenuItem value={3}>
+            Moderately active — exercise 3–5 days/week
+          </MenuItem>
+          <MenuItem value={4}>
+            Very active — exercise 6–7 days/week
+          </MenuItem>
+          <MenuItem value={5}>
+            Extremely active — intense training or physical work
+          </MenuItem>
+        </TextField>
+            
           {fields.map((field) => (
             <TextField
               key={field.key}
@@ -160,7 +227,14 @@ function GoalsForm({
             />
           ))}
         </Box>
-
+        <Button
+            variant="outlined"
+            size="large"
+            onClick={onCalculate}
+            disabled={isCalculating || isSaving}
+            >
+            {isCalculating ? 'Calculating...' : 'Calculate from profile'}
+        </Button> 
         <Button
           variant="contained"
           size="large"

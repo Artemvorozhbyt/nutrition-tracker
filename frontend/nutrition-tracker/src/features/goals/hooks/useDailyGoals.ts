@@ -1,6 +1,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  calculateDailyGoals,  
   getDailyGoals,
   updateDailyGoals,
   type DailyGoalsDto,
@@ -24,6 +25,21 @@ export function useUpdateDailyGoalsMutation() {
       await queryClient.invalidateQueries({
         queryKey: dailyGoalsQueryKey,
       })
+      await queryClient.invalidateQueries({
+        queryKey: ['dashboard'],
+      })
+    },
+  })
+}
+
+export function useCalculateDailyGoalsMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: calculateDailyGoals,
+    onSuccess: async (goals) => {
+      queryClient.setQueryData(dailyGoalsQueryKey, goals)
+
       await queryClient.invalidateQueries({
         queryKey: ['dashboard'],
       })

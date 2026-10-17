@@ -1,17 +1,17 @@
+
 using NutritionTracker.Domain.Enums;
 
 namespace NutritionTracker.Application.Services;
 
 public class DailyGoalCalculator
 {
-    private const decimal ActivityFactor = 1.375m;
-
     public DailyGoalCalculation Calculate(
         Gender gender,
         int age,
         decimal height,
         decimal weight,
-        GoalType goal)
+        GoalType goal,
+        ActivityLevel activityLevel)
     {
         var bmr = gender switch
         {
@@ -30,14 +30,23 @@ public class DailyGoalCalculator
             _ => throw new ArgumentOutOfRangeException(nameof(gender))
         };
 
-        var tdee = bmr * ActivityFactor;
+        var activityFactor = activityLevel switch
+        {
+            ActivityLevel.Sedentary => 1.2m,
+            ActivityLevel.LightlyActive => 1.375m,
+            ActivityLevel.ModeratelyActive => 1.55m,
+            ActivityLevel.VeryActive => 1.725m,
+            ActivityLevel.ExtremelyActive => 1.9m,
+            _ => throw new ArgumentOutOfRangeException(nameof(activityLevel))
+        };
+
+        var tdee = bmr * activityFactor;
 
         var calories = goal switch
         {
             GoalType.LoseWeight => tdee * 0.85m,
             GoalType.MaintainWeight => tdee,
             GoalType.GainWeight => tdee * 1.10m,
-
             _ => throw new ArgumentOutOfRangeException(nameof(goal))
         };
 

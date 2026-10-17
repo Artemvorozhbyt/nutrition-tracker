@@ -237,6 +237,7 @@ public class AuthController : ControllerBase
             Height = request.Height,
             Weight = request.Weight,
             Goal = request.Goal,
+            ActivityLevel = request.ActivityLevel,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -250,7 +251,8 @@ public class AuthController : ControllerBase
             user.Age,
             user.Height,
             user.Weight,
-            user.Goal);
+            user.Goal,
+            user.ActivityLevel);
 
         var dailyGoal = new DailyGoal
         {

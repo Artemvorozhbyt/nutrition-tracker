@@ -19,6 +19,7 @@ type CompleteProfileRequest = {
   height: number
   weight: number
   goal: number
+  activityLevel: number
 }
 
 export function CompleteProfilePage() {
@@ -31,6 +32,7 @@ export function CompleteProfilePage() {
     height: 0,
     weight: 0,
     goal: 2,
+    activityLevel: 2,
   })
 
   const [loading, setLoading] = useState(false)
@@ -169,6 +171,31 @@ export function CompleteProfilePage() {
             <MenuItem value={1}>Lose weight</MenuItem>
             <MenuItem value={2}>Maintain weight</MenuItem>
             <MenuItem value={3}>Gain weight</MenuItem>
+          </TextField>
+          <TextField
+            fullWidth
+            select
+            label="Physical activity level"
+            value={form.activityLevel}
+            onChange={(event) =>
+              updateField('activityLevel', event.target.value)
+            }
+          >
+            <MenuItem value={1}>
+              Sedentary — little or no exercise
+            </MenuItem>
+            <MenuItem value={2}>
+              Lightly active — light exercise 1–3 days/week
+            </MenuItem>
+            <MenuItem value={3}>
+              Moderately active — exercise 3–5 days/week
+            </MenuItem>
+            <MenuItem value={4}>
+              Very active — hard exercise 6–7 days/week
+            </MenuItem>
+            <MenuItem value={5}>
+              Extremely active — intense training or physical work
+            </MenuItem>
           </TextField>
 
           <Button
