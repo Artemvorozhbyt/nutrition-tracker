@@ -4,7 +4,6 @@ import { LoginPage } from '../features/auth/pages/LoginPage'
 import { AppLayout } from '../layouts/AppLayout'
 import { AuthLayout } from '../layouts/AuthLayout'
 import { CompleteProfilePage } from '../features/auth/pages/CompleteProfilePage'
-import { FeaturePlaceholderPage } from '../pages/FeaturePlaceholderPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ProtectedRoute } from './ProtectedRoute'
 import { PublicOnlyRoute } from './PublicOnlyRoute'
@@ -15,6 +14,7 @@ import { MealsPage } from '../features/meals/pages/MealsPage'
 import { RegisterPage } from '../features/auth/pages/RegisterPage'
 import { WeightPage } from '../features/weight/pages/WeightPage'
 import { GoogleCallbackPage } from '../features/auth/pages/GoogleCallbackPage'
+import { GoalsPage } from '../features/goals/pages/GoalsPage'
 
 export function AppRouter() {
   return (
@@ -62,15 +62,7 @@ export function AppRouter() {
               element={<WeightPage />}
               path={routeSegments.weight}
             />
-            <Route
-              element={
-                <FeaturePlaceholderPage
-                  description="Daily goal viewing and updates will be implemented only against the provided API."
-                  title="Goals"
-                />
-              }
-              path={routeSegments.goals}
-            />
+            <Route element={<GoalsPage />} path={routeSegments.goals} />
           </Route>
 
           <Route
@@ -84,3 +76,4 @@ export function AppRouter() {
     </BrowserRouter>
   )
 }
+                                                          

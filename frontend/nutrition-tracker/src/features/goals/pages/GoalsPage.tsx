@@ -1,0 +1,175 @@
+
+import { useEffect, useState } from 'react'
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material'
+import { useDailyGoalsQuery, useUpdateDailyGoalsMutation } from '../hooks/useDailyGoals'
+import type { DailyGoalsDto } from '../api/dailyGoals'
+
+const initialGoals: DailyGoalsDto = {
+  calories: 2000,
+  protein: 120,
+  fat: 65,
+  carbs: 250,
+}
+
+const fields: {
+  key: keyof DailyGoalsDto
+  label: string
+  unit: string
+}[] = [
+  { key: 'calories', label: 'Calories', unit: 'kcal' },
+  { key: 'protein', label: 'Protein', unit: 'g' },
+  { key: 'fat', label: 'Fat', unit: 'g' },
+  { key: 'carbs', label: 'Carbs', unit: 'g' },
+]
+
+export function GoalsPage() {
+  const goalsQuery = useDailyGoalsQuery()
+  const updateMutation = useUpdateDailyGoalsMutation()
+  const [goals, setGoals] = useState<DailyGoalsDto>(initialGoals)
+
+  useEffect(() => {
+    if (goalsQuery.data) {
+      setGoals(goalsQuery.data)
+    }
+  }, [goalsQuery.data])
+
+  const handleChange = (key: keyof DailyGoalsDto, value: string) => {
+    setGoals((current) => ({
+      ...current,
+      [key]: value === '' ? 0 : Number(value),
+    }))
+  }
+
+  const handleSave = () => {
+    updateMutation.mutate(goals)
+  }
+
+  if (goalsQuery.isPending) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (goalsQuery.isError && goalsQuery.error.message.includes('404')) {
+    return (
+      <Stack spacing={2} sx={{ maxWidth: 700, mx: 'auto' }}>
+        <Alert severity="info">
+          Your daily goals have not been created yet. Set your targets below.
+        </Alert>
+        <GoalsForm
+          goals={goals}
+          onChange={handleChange}
+          onSave={handleSave}
+          isSaving={updateMutation.isPending}
+        />
+        {updateMutation.isSuccess && (
+          <Alert severity="success">Daily goals saved successfully.</Alert>
+        )}
+        {updateMutation.isError && (
+          <Alert severity="error">{updateMutation.error.message}</Alert>
+        )}
+      </Stack>
+    )
+  }
+
+  if (goalsQuery.isError) {
+    return <Alert severity="error">{goalsQuery.error.message}</Alert>
+  }
+
+  return (
+    <Stack spacing={3} sx={{ maxWidth: 900, mx: 'auto' }}>
+      <Box>
+        <Typography variant="h4" sx={{ fontWeight: 800 }}>
+          Daily Goals
+        </Typography>
+        <Typography color="text.secondary" sx={{ mt: 1 }}>
+          Set your daily calorie and macronutrient targets.
+        </Typography>
+      </Box>
+
+      <GoalsForm
+        goals={goals}
+        onChange={handleChange}
+        onSave={handleSave}
+        isSaving={updateMutation.isPending}
+      />
+
+      {updateMutation.isSuccess && (
+        <Alert severity="success">Daily goals saved successfully.</Alert>
+      )}
+      {updateMutation.isError && (
+        <Alert severity="error">{updateMutation.error.message}</Alert>
+      )}
+    </Stack>
+  )
+}
+
+function GoalsForm({
+  goals,
+  onChange,
+  onSave,
+  isSaving,
+}: {
+  goals: DailyGoalsDto
+  onChange: (key: keyof DailyGoalsDto, value: string) => void
+  onSave: () => void
+  isSaving: boolean
+}) {
+  return (
+    <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
+      <Stack spacing={3}>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Your daily targets
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Values are used to track your daily nutrition progress.
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+            gap: 2,
+          }}
+        >
+          {fields.map((field) => (
+            <TextField
+              key={field.key}
+              fullWidth
+              type="number"
+              label={field.label}
+              value={goals[field.key]}
+              onChange={(event) => onChange(field.key, event.target.value)}
+              slotProps={{
+                htmlInput: { min: 0, step: 1 },
+              }}
+              helperText={field.unit}
+            />
+          ))}
+        </Box>
+
+        <Button
+          variant="contained"
+          size="large"
+          onClick={onSave}
+          disabled={isSaving || fields.some((field) => goals[field.key] <= 0)}
+        >
+          {isSaving ? 'Saving...' : 'Save goals'}
+        </Button>
+      </Stack>
+    </Paper>
+  )
+}
