@@ -9,7 +9,7 @@ A full-stack web application for tracking daily nutrition, managing food product
 ---
 
 ## Screenshots
-
+<img width="1917" height="945" alt="image" src="https://github.com/user-attachments/assets/9701e4c5-cd7e-4988-98fc-36dc9f9639f7" />
 <img width="1916" height="943" alt="image" src="https://github.com/user-attachments/assets/d5c6a364-eb9a-4589-b968-7f7a4c3ad3c5" />
 <img width="1917" height="944" alt="image" src="https://github.com/user-attachments/assets/3913e147-e053-401c-9f8b-93a1d7c4dff8" />
 <img width="1916" height="943" alt="image" src="https://github.com/user-attachments/assets/3dfea4a7-81ea-480a-bf24-dfa5b30be3fe" />
